@@ -16,7 +16,7 @@ export async function generateStaticParams() {
     const db = getDb({ DB: process.env.DB as any });
     const query = db.prepare('SELECT slug FROM posts');
     const { results } = await query.bind().all();
-    return results.map((post: any) => ({ slug: post.slug }));
+    return (results as unknown as { slug: string }[]).map(post => ({ slug: post.slug }));
   } catch {
     return [];
   }
@@ -29,12 +29,13 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
   try {
     const db = getDb({ DB: process.env.DB as any });
-    const { results } = await db.prepare('SELECT * FROM posts WHERE slug = ?').bind(params.slug).all();
+    const query = db.prepare('SELECT * FROM posts WHERE slug = ?');
+    const { results } = await query.bind(params.slug).all();
     
     if (!results.length) {
       notFound = true;
     } else {
-      currentPost = results[0] as Post;
+      currentPost = results[0] as unknown as Post;
     }
   } catch (err) {
     error = err instanceof Error ? err : new Error('未知错误');

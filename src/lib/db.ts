@@ -1,18 +1,16 @@
 export interface D1Database {
   prepare: (sql: string) => {
     bind: (...params: unknown[]) => {
-      all: <T = unknown>() => Promise<{ results: T[] }>;
+      all: () => Promise<{ results: unknown[] }>;
     };
   };
 }
 
 declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      DB: D1Database;
-    }
+  interface ProcessEnv {
+    DB: D1Database;
   }
-  
+
   var db: D1Database | undefined;
 }
 
