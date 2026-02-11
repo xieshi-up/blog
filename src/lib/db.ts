@@ -1,16 +1,18 @@
-interface D1PreparedStatement {
-  bind: (...params: unknown[]) => D1BoundStatement;
-}
-
-interface D1BoundStatement {
-  all: <T = unknown>() => Promise<{ results: T[] }>;
-}
-
 export interface D1Database {
-  prepare: (sql: string) => D1PreparedStatement;
+  prepare: (sql: string) => {
+    bind: (...params: unknown[]) => {
+      all: <T = unknown>() => Promise<{ results: T[] }>;
+    };
+  };
 }
 
 declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      DB: D1Database;
+    }
+  }
+  
   var db: D1Database | undefined;
 }
 

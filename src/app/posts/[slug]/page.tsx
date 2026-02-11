@@ -14,7 +14,8 @@ interface Post {
 export async function generateStaticParams() {
   try {
     const db = getDb({ DB: process.env.DB as any });
-    const { results } = await db.prepare('SELECT slug FROM posts').all();
+    const query = db.prepare('SELECT slug FROM posts');
+    const { results } = await query.bind().all();
     return results.map((post: any) => ({ slug: post.slug }));
   } catch {
     return [];

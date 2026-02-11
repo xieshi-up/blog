@@ -15,9 +15,8 @@ export default async function Home() {
 
   try {
     const db = getDb({ DB: process.env.DB as any });
-    const { results } = await db.prepare(
-      'SELECT id, title, excerpt, slug, date FROM posts ORDER BY date DESC'
-    ).all();
+    const query = db.prepare('SELECT id, title, excerpt, slug, date FROM posts ORDER BY date DESC');
+    const { results } = await query.bind().all();
     allPosts = results as Post[];
   } catch (err) {
     error = err instanceof Error ? err : new Error('未知错误');
