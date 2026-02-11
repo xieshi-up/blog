@@ -1,10 +1,8 @@
-import type { D1Database } from '@cloudflare/workers-types';
-
 declare global {
-  var db: D1Database | undefined;
+  var db: any;
 }
 
-export function getDb(env: { DB: D1Database }) {
+export function getDb(env: { DB: any }) {
   if (globalThis.db) return globalThis.db;
   globalThis.db = env.DB;
   return globalThis.db;

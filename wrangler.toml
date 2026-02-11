@@ -1,0 +1,8 @@
+name = "blog"
+compatibility_date = "2026-02-11"
+pages_build_output_dir = ".next"
+
+[env.production]
+d1_databases = [
+  { binding = "DB", database_name = "blog-db", database_id = "6070ea68-0b22-4653-9837-06542edccf91" }
+]
