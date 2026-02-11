@@ -6,7 +6,7 @@ interface D1BoundStatement {
   all: <T = unknown>() => Promise<{ results: T[] }>;
 }
 
-interface D1Database {
+export interface D1Database {
   prepare: (sql: string) => D1PreparedStatement;
 }
 
