@@ -1,54 +1,44 @@
 import Link from 'next/link';
-import { marked } from 'marked';
-import type { D1Database } from '@cloudflare/workers-types';
+import type { Metadata, ResolvingMetadata } from 'next';
+import { getRequestContext } from '@cloudflare/next-on-pages';
+import { getAllSlugs, getPostBySlug, type Post } from '@/lib/posts';
+import { renderMarkdownToHtml } from '@/lib/markdown';
 
-interface Post {
-  id: number;
-  title: string;
-  excerpt: string;
-  content: string;
-  slug: string;
-  date: string;
+type Props = {
+  params: Promise<{ slug: string }>
 }
 
 export async function generateStaticParams() {
-  return [];
+  const slugs = await getAllSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
-export const revalidate = 3600;
-
-async function getPostData(slug: string): Promise<{ post: Post | null; error: string | null }> {
-  try {
-    const db = process.env.DB as unknown as D1Database;
-    
-    const { results } = await db
-      .prepare('SELECT * FROM posts WHERE slug = ?')
-      .bind(slug)
-      .all<Post>();
-    
-    if (!results.length) {
-      return { post: null, error: null };
-    }
-    
-    return { post: results[0], error: null };
-  } catch (err) {
-    return { post: null, error: err instanceof Error ? err.message : '未知错误' };
-  }
-}
-
-export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
   const { slug } = await params;
-  const { post, error } = await getPostData(slug);
-
-  if (error) {
-    return (
-      <main className="max-w-3xl mx-auto p-6 text-red-500">
-        <h1 className="text-2xl font-bold mb-4">数据库连接失败</h1>
-        <p>错误信息：{error}</p>
-        <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">返回首页</Link>
-      </main>
-    );
+  const post = await getPostBySlug(slug);
+  
+  if (!post) {
+    return { title: '文章未找到' };
   }
+  
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: 'article',
+      publishedTime: post.date,
+    },
+  };
+}
+
+export default async function PostPage({ params }: Props) {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     return (
@@ -59,16 +49,19 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     );
   }
 
-  const htmlContent = await marked.parse(post.content);
+  const htmlContent = await renderMarkdownToHtml(post.content);
+  
   return (
     <main className="max-w-3xl mx-auto p-6">
       <Link href="/" className="text-blue-600 hover:underline mb-6 inline-block">← 返回首页</Link>
-      <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
-      <p className="text-gray-500 mb-8">{post.date}</p>
-      <div 
-        className="prose max-w-none"
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
-      />
+      <article>
+        <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
+        <p className="text-gray-500 mb-8">{post.date}</p>
+        <div 
+          className="prose max-w-none"
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
+        />
+      </article>
     </main>
   );
 }
