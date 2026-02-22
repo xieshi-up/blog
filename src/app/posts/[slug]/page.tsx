@@ -18,10 +18,6 @@ export async function generateStaticParams() {
       .prepare('SELECT slug FROM posts')
       .all<{ slug: string }>();
     
-    if (results.length === 0) {
-      return [{ slug: 'placeholder' }];
-    }
-    
     return results.map((post) => ({ slug: post.slug }));
   } catch {
     return [{ slug: 'placeholder' }];
@@ -29,13 +25,13 @@ export async function generateStaticParams() {
 }
 
 async function getPostData(slug: string): Promise<{ post: Post | null; error: string | null }> {
-  const db = process.env.DB as unknown as D1Database;
-  
-  if (!db) {
-    return { post: null, error: '数据库不可用' };
-  }
-
   try {
+    const db = (process.env as any).DB as D1Database;
+    
+    if (!db) {
+      return { post: null, error: '数据库连接不可用' };
+    }
+
     const { results } = await db
       .prepare('SELECT * FROM posts WHERE slug = ?')
       .bind(slug)
@@ -68,7 +64,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   if (error) {
     return (
       <main className="max-w-3xl mx-auto p-6 text-red-500">
-        <h1 className="text-2xl font-bold mb-4">加载文章失败</h1>
+        <h1 className="text-2xl font-bold mb-4">数据库连接失败</h1>
         <p>错误信息：{error}</p>
         <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">返回首页</Link>
       </main>
