@@ -12,8 +12,6 @@ interface Post {
   date: string;
 }
 
-export const runtime = 'edge';
-
 export async function generateStaticParams() {
   try {
     const db = process.env.DB as unknown as D1Database;
