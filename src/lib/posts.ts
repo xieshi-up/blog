@@ -9,22 +9,6 @@ export interface Post {
   date: string;
 }
 
-export async function getAllSlugs(): Promise<string[]> {
-  try {
-    // OpenNext 中可以直接使用 process.env.DB
-    const db = process.env.DB as D1Database;
-    
-    const { results } = await db
-      .prepare('SELECT slug FROM posts')
-      .all<{ slug: string }>();
-    
-    return results.map(p => p.slug);
-  } catch (error) {
-    console.error('Failed to fetch slugs:', error);
-    return [];
-  }
-}
-
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
     const db = process.env.DB as D1Database;

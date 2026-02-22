@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { getAllSlugs, getPostBySlug, type Post } from '@/lib/posts';
+import { getPostBySlug } from '@/lib/posts';
 import { renderMarkdownToHtml } from '@/lib/markdown';
 
 type Props = {
@@ -8,9 +8,10 @@ type Props = {
 }
 
 export async function generateStaticParams() {
-  const slugs = await getAllSlugs();
-  return slugs.map((slug) => ({ slug }));
+  return [];
 }
+
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
