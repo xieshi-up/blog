@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { marked } from 'marked';
 import type { D1Database } from '@cloudflare/workers-types';
-import { getRequestContext } from '@cloudflare/next-on-pages';
 
 interface Post {
   id: number;
@@ -12,23 +11,9 @@ interface Post {
   date: string;
 }
 
-export async function generateStaticParams() {
-  try {
-    const db = process.env.DB as unknown as D1Database;
-    const { results } = await db
-      .prepare('SELECT slug FROM posts')
-      .all<{ slug: string }>();
-    
-    return results.map((post) => ({ slug: post.slug }));
-  } catch {
-    return [{ slug: 'placeholder' }];
-  }
-}
-
 async function getPostData(slug: string): Promise<{ post: Post | null; error: string | null }> {
   try {
-    const context = getRequestContext();
-    const db = context.env.DB as D1Database;
+    const db = process.env.DB as unknown as D1Database;
     
     const { results } = await db
       .prepare('SELECT * FROM posts WHERE slug = ?')
@@ -47,16 +32,6 @@ async function getPostData(slug: string): Promise<{ post: Post | null; error: st
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  
-  if (slug === 'placeholder') {
-    return (
-      <div className="max-w-3xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-4">文章加载中</h1>
-        <Link href="/" className="text-blue-600 hover:underline">返回首页</Link>
-      </div>
-    );
-  }
-
   const { post, error } = await getPostData(slug);
 
   if (error) {
