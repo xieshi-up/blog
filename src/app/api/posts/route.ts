@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
+import type { D1Database } from '@cloudflare/workers-types';
 
 export const runtime = 'edge';
 
 export async function GET() {
   try {
-    const db = process.env.DB;
+    const db = process.env.DB as unknown as D1Database;
+    
     if (!db) {
       return NextResponse.json([]);
     }
