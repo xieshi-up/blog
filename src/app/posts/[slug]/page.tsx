@@ -11,6 +11,32 @@ interface Post {
   date: string;
 }
 
+export async function generateStaticParams() {
+  console.log('Starting generateStaticParams...');
+  try {
+    const db = process.env.DB as unknown as D1Database;
+    console.log('DB connection available:', !!db);
+
+    const query = db.prepare('SELECT slug FROM posts');
+    console.log('Executing query...');
+    
+    const { results } = await query.all<{ slug: string }>();
+    console.log('Query results:', results);
+
+    if (results && results.length > 0) {
+      const slugs = results.map((post) => ({ slug: post.slug }));
+      console.log('Returning slugs:', slugs);
+      return slugs;
+    }
+    
+    console.log('No slugs found in database');
+    return [];
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error);
+    return [];
+  }
+}
+
 async function getPostData(slug: string): Promise<{ post: Post | null; error: string | null }> {
   try {
     const db = process.env.DB as unknown as D1Database;
