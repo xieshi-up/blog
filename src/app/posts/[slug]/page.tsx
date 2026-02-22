@@ -49,7 +49,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       );
     }
 
-    const post = results[0] as Post;
+    const post = results[0] as unknown as Post;
     const htmlContent = await marked.parse(post.content);
 
     return (
