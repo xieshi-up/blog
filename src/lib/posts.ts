@@ -1,4 +1,3 @@
-import { getRequestContext } from '@cloudflare/next-on-pages';
 import type { D1Database } from '@cloudflare/workers-types';
 
 export interface Post {
@@ -12,8 +11,8 @@ export interface Post {
 
 export async function getAllSlugs(): Promise<string[]> {
   try {
-    const ctx = getRequestContext();
-    const db = ctx.env.DB as D1Database;
+    // OpenNext 中可以直接使用 process.env.DB
+    const db = process.env.DB as D1Database;
     
     const { results } = await db
       .prepare('SELECT slug FROM posts')
@@ -28,8 +27,7 @@ export async function getAllSlugs(): Promise<string[]> {
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
-    const ctx = getRequestContext();
-    const db = ctx.env.DB as D1Database;
+    const db = process.env.DB as D1Database;
     
     const { results } = await db
       .prepare('SELECT * FROM posts WHERE slug = ?')

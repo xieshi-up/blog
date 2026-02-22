@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import type { Metadata, ResolvingMetadata } from 'next';
-import { getRequestContext } from '@cloudflare/next-on-pages';
+import type { Metadata } from 'next';
 import { getAllSlugs, getPostBySlug, type Post } from '@/lib/posts';
 import { renderMarkdownToHtml } from '@/lib/markdown';
 
@@ -13,10 +12,7 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   
@@ -27,12 +23,6 @@ export async function generateMetadata(
   return {
     title: post.title,
     description: post.excerpt,
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      type: 'article',
-      publishedTime: post.date,
-    },
   };
 }
 
