@@ -14,10 +14,20 @@ interface Post {
 
 export async function generateStaticParams() {
   try {
-    const db = getDb({ DB: process.env.DB as unknown as D1Database });
-    const query = db.prepare('SELECT slug FROM posts');
-    const { results } = await query.bind().all();
-    return (results as unknown as { slug: string }[]).map(post => ({ slug: post.slug }));
+    const baseUrl = process.env.CF_PAGES_URL 
+      ? process.env.CF_PAGES_URL 
+      : 'https://blog-xieshi.pages.dev';
+    
+    const res = await fetch(`${baseUrl}/api/posts`, {
+      cache: 'no-store'
+    });
+    
+    if (!res.ok) {
+      return [];
+    }
+    
+    const posts = await res.json();
+    return posts.map((post: { slug: string }) => ({ slug: post.slug }));
   } catch {
     return [];
   }
