@@ -26,7 +26,7 @@ export async function generateStaticParams() {
 
 async function getPostData(slug: string): Promise<{ post: Post | null; error: string | null }> {
   try {
-    const db = (process.env as any).DB as D1Database;
+    const db = (process.env as { DB: D1Database }).DB;
     
     if (!db) {
       return { post: null, error: '数据库连接不可用' };
