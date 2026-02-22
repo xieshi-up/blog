@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { marked } from 'marked';
 import type { D1Database } from '@cloudflare/workers-types';
+import { getRequestContext } from '@cloudflare/next-on-pages';
 
 interface Post {
   id: number;
@@ -10,6 +11,8 @@ interface Post {
   slug: string;
   date: string;
 }
+
+export const runtime = 'edge';
 
 export async function generateStaticParams() {
   try {
@@ -26,12 +29,9 @@ export async function generateStaticParams() {
 
 async function getPostData(slug: string): Promise<{ post: Post | null; error: string | null }> {
   try {
-    const db = process.env.DB;
-
-    if (!db) {
-      return { post: null, error: '数据库连接不可用' };
-    }
-
+    const context = getRequestContext();
+    const db = context.env.DB as D1Database;
+    
     const { results } = await db
       .prepare('SELECT * FROM posts WHERE slug = ?')
       .bind(slug)
