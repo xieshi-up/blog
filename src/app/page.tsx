@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getDb } from '@/lib/db';
+import type { D1Database } from '@cloudflare/workers-types';
 
 interface Post {
   id: number;
@@ -14,7 +15,7 @@ export default async function Home() {
   let error: Error | null = null;
 
   try {
-    const db = getDb({ DB: process.env.DB as any });
+    const db = getDb({ DB: process.env.DB as unknown as D1Database });
     const query = db.prepare('SELECT id, title, excerpt, slug, date FROM posts ORDER BY date DESC');
     const { results } = await query.bind().all();
     allPosts = results as unknown as Post[];
