@@ -1,10 +1,4 @@
-export interface D1Database {
-  prepare: (sql: string) => {
-    bind: (...params: unknown[]) => {
-      all: () => Promise<{ results: unknown[] }>;
-    };
-  };
-}
+import type { D1Database } from '@cloudflare/workers-types';
 
 declare global {
   interface ProcessEnv {
