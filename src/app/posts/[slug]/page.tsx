@@ -12,18 +12,10 @@ interface Post {
 }
 
 export async function generateStaticParams() {
-  try {
-    const db = process.env.DB as unknown as D1Database;
-    const { results } = await db
-      .prepare('SELECT slug FROM posts')
-      .all<{ slug: string }>();
-    
-    return results.map((post) => ({ slug: post.slug }));
-  } catch (error) {
-    console.error('Error in generateStaticParams:', error);
-    return [];
-  }
+  return [];
 }
+
+export const revalidate = 3600;
 
 async function getPostData(slug: string): Promise<{ post: Post | null; error: string | null }> {
   try {
