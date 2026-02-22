@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getPostBySlug } from '@/lib/posts';
 import { renderMarkdownToHtml } from '@/lib/markdown';
+import type { D1Database } from '@cloudflare/workers-types';
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -15,21 +16,17 @@ export const revalidate = 3600;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
-  
-  if (!post) {
-    return { title: '文章未找到' };
-  }
-  
   return {
-    title: post.title,
-    description: post.excerpt,
+    title: '文章详情',
+    description: '阅读文章',
   };
 }
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  
+  const db = process.env.DB as D1Database;
+  const post = await getPostBySlug({ DB: db }, slug);
 
   if (!post) {
     return (

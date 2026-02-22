@@ -9,9 +9,9 @@ export interface Post {
   date: string;
 }
 
-export async function getPostBySlug(slug: string): Promise<Post | null> {
+export async function getPostBySlug(env: { DB: D1Database }, slug: string): Promise<Post | null> {
   try {
-    const db = process.env.DB as D1Database;
+    const db = env.DB;
     
     const { results } = await db
       .prepare('SELECT * FROM posts WHERE slug = ?')
