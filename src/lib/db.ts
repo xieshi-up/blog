@@ -1,8 +1,10 @@
 import type { D1Database } from '@cloudflare/workers-types';
 
 declare global {
-  interface ProcessEnv {
-    DB: D1Database;
+  namespace NodeJS {
+    interface ProcessEnv {
+      DB: D1Database;
+    }
   }
 }
 
