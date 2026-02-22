@@ -13,13 +13,18 @@ interface Post {
 
 export async function generateStaticParams() {
   try {
-    const baseUrl = process.env.CF_PAGES_URL || 'https://blog-xieshi.pages.dev';
-    const res = await fetch(`${baseUrl}/api/posts`);
-    if (!res.ok) return [];
-    const posts = await res.json();
-    return posts.map((post: { slug: string }) => ({ slug: post.slug }));
+    const db = process.env.DB as unknown as D1Database;
+    const { results } = await db
+      .prepare('SELECT slug FROM posts')
+      .all<{ slug: string }>();
+    
+    if (results.length === 0) {
+      return [{ slug: 'placeholder' }];
+    }
+    
+    return results.map((post) => ({ slug: post.slug }));
   } catch {
-    return [];
+    return [{ slug: 'placeholder' }];
   }
 }
 
@@ -48,6 +53,16 @@ async function getPostData(slug: string): Promise<{ post: Post | null; error: st
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  
+  if (slug === 'placeholder') {
+    return (
+      <div className="max-w-3xl mx-auto p-6">
+        <h1 className="text-2xl font-bold mb-4">文章加载中</h1>
+        <Link href="/" className="text-blue-600 hover:underline">返回首页</Link>
+      </div>
+    );
+  }
+
   const { post, error } = await getPostData(slug);
 
   if (error) {
