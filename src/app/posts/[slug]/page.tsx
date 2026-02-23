@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { getPostBySlug } from '@/lib/posts';
 import { renderMarkdownToHtml } from '@/lib/markdown';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
+import type { Post } from '@/lib/posts';
 
 console.log('--- Worker Startup ---');
 console.log('All env keys:', Object.keys(process.env));
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-async function getPostData(slug: string): Promise<{ post: any; error: string | null }> {
+async function getPostData(slug: string): Promise<{ post: Post | null; error: string | null }> {
   try {
     const ctx = getCloudflareContext();
     console.log('Context keys:', Object.keys(ctx));
