@@ -23,36 +23,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-async function getPostData(slug: string): Promise<{ post: Post | null; error: string | null }> {
-  console.log('--- Inside getPostData ---');
-  try {
-    const ctx = getCloudflareContext();
-    console.log('Full ctx object:', JSON.stringify(ctx, null, 2));
-    console.log('ctx.env keys:', Object.keys(ctx.env));
-    console.log('DB in ctx.env:', 'DB' in ctx.env);
-    console.log('ctx.env.DB type:', typeof ctx.env.DB);
-
-    const post = await getPostBySlug(ctx.env, slug);
-    return { post, error: null };
-  } catch (err) {
-    console.error('Error in getPostData:', err);
-    return { post: null, error: err instanceof Error ? err.message : '未知错误' };
-  }
-}
-
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
-  const { post, error } = await getPostData(slug);
-
-  if (error) {
+  
+  // 在组件最顶层调用 getCloudflareContext
+  let env;
+  try {
+    const ctx = getCloudflareContext();
+    env = ctx.env;
+  } catch (error) {
+    console.error('getCloudflareContext error:', error);
     return (
       <main className="max-w-3xl mx-auto p-6 text-red-500">
-        <h1 className="text-2xl font-bold mb-4">数据库连接失败</h1>
-        <p>错误信息：{error}</p>
+        <h1 className="text-2xl font-bold mb-4">上下文获取失败</h1>
+        <p>错误信息：{error instanceof Error ? error.message : '未知错误'}</p>
         <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">返回首页</Link>
       </main>
     );
   }
+
+  const post = await getPostBySlug(env, slug);
 
   if (!post) {
     return (
