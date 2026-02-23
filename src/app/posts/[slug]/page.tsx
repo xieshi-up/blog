@@ -5,11 +5,6 @@ import { renderMarkdownToHtml } from '@/lib/markdown';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import type { Post } from '@/lib/posts';
 
-console.log('--- Worker Startup ---');
-console.log('All env keys:', Object.keys(process.env));
-console.log('DB key exists:', 'DB' in process.env);
-console.log('DB value type:', typeof process.env.DB);
-
 type Props = {
   params: Promise<{ slug: string }>
 }
@@ -29,11 +24,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getPostData(slug: string): Promise<{ post: Post | null; error: string | null }> {
+  console.log('--- Inside getPostData ---');
   try {
     const ctx = getCloudflareContext();
-    console.log('Context keys:', Object.keys(ctx));
-    console.log('Env keys:', Object.keys(ctx.env));
+    console.log('Full ctx object:', JSON.stringify(ctx, null, 2));
+    console.log('ctx.env keys:', Object.keys(ctx.env));
     console.log('DB in ctx.env:', 'DB' in ctx.env);
+    console.log('ctx.env.DB type:', typeof ctx.env.DB);
 
     const post = await getPostBySlug(ctx.env, slug);
     return { post, error: null };
