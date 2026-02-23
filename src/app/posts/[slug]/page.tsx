@@ -65,7 +65,7 @@ export default async function PostPage({ params }: Props) {
     return (
       <main className="max-w-3xl mx-auto p-6 text-red-500">
         <h1 className="text-2xl font-bold mb-4">数据库绑定错误</h1>
-        <p>错误信息：env 对象中不存在名为 "DB" 的绑定。当前 env 的键为: {JSON.stringify(Object.keys(env))}</p>
+        <p>错误信息：env 对象中不存在名为 {`"DB"`} 的绑定。当前 env 的键为: {JSON.stringify(Object.keys(env))}</p>
         <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">返回首页</Link>
       </main>
     );
