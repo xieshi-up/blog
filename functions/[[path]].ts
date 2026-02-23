@@ -1,3 +1,4 @@
-import worker from '../.open-next/worker';
-
-export const onRequest = worker.fetch;
+export const onRequest = async (context) => {
+  const { default: worker } = await import('../.open-next/worker');
+  return worker.fetch(context.request, context.env, context);
+};
