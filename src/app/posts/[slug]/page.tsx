@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getPostBySlug } from '@/lib/posts';
 import { renderMarkdownToHtml } from '@/lib/markdown';
-import { getRequestContext } from '@cloudflare/next-on-pages';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -24,9 +24,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
-  
-  const ctx = getRequestContext();
-  const post = await getPostBySlug(ctx.env, slug);
+  const { env } = getCloudflareContext();
+  const post = await getPostBySlug(env, slug);
 
   if (!post) {
     return (

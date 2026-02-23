@@ -1,7 +1,6 @@
 name = "blog-xieshi"
 compatibility_date = "2026-02-11"
 compatibility_flags = ["nodejs_compat"]
-main = ".open-next/worker.js"
 
 [[d1_databases]]
 binding = "DB"
